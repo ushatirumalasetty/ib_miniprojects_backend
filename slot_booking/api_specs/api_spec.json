@@ -1,0 +1,1117 @@
+{
+  "swagger": "2.0",
+  "host": "127.0.0.1:8080",
+  "basePath": "/slot_booking/",
+  "info": {
+    "version": "1.0.0",
+    "title": "Slot Booking",
+    "description": "Slot Booking"
+  },
+  "schemes": [
+		"https",
+		"http"
+	],
+  "consumes": [
+		"application/json"
+	],
+  "produces": [
+		"application/json"
+	],
+  "securityDefinitions": {
+    "oauth": {
+      "tokenUrl": "http://auth.ibtspl.com/oauth2/",
+      "flow": "password",
+      "scopes": {
+        "read": "read users",
+        "write": "create users",
+        "update": "update users",
+        "delete": "delete users",
+        "superuser": "super user permission"
+      },
+      "type": "oauth2"
+    }
+  },
+  "definitions": {
+    "SlotDefinitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "start_time": {
+            "type": "string"
+          },
+          "end_time": {
+            "type": "string"
+          }
+        },
+        "required": [
+					"start_time",
+					"end_time"
+				]
+      }
+    },
+    "UserDefinitions": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "user_name": {
+          "type": "string"
+        }
+      },
+      "required": [
+					"user_id",
+					"first_name",
+					"last_name",
+					"user_name"
+				]
+    },
+    "PreviousSlotDefinitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "start_time": {
+            "type": "string"
+          },
+          "end_time": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "washing_machine_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+					"start_time",
+					"end_time",
+					"date",
+					"washing_machine_id"
+				]
+      }
+    },
+    "WashingMachinesDetailsDefinitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "washing_machine_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+					"washing_machine_id"
+				]
+      }
+    },
+    "SlotStatusDefintions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "start_time": {
+            "type": "string"
+          },
+          "end_time": {
+            "type": "string"
+          },
+          "is_avilable": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "RequestsDefintions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/definitions/UserDefinitions"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "washing_machine_id": {
+            "type": "string"
+          },
+          "slot_start_time": {
+            "type": "string"
+          },
+          "slot_end_time": {
+            "type": "string"
+          },
+          "request_status": {
+            "type": "string",
+            "enum": [
+							"APPROVED",
+							"REJECTED",
+							"PENDING"
+						]
+
+          }
+
+        },
+        "required": [
+          "washing_machine_id",
+          "date",
+          "slot_start_time",
+          "slot_end_time",
+          "request_status"
+          ]
+      }
+    },
+    "SlotsWithExtraFieldDate": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "slots": {
+            "$ref": "#/definitions/SlotStatusDefintions"
+          }
+        },
+        "required": [
+					"date"
+				]
+      }
+    }
+  },
+  "parameters": {
+    "UserSignUpParameter": {
+      "name": "Signup",
+      "description": "details for an user sign up",
+      "in": "body",
+      "required": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "user_name": {
+            "type": "string"
+          },
+          "passward": {
+            "type": "string"
+          },
+          "confirm_passward": {
+            "type": "string"
+          }
+        },
+        "required": [
+  					"user_name",
+  					"passward",
+  					"confirm_passward"
+  				]
+      }
+    },
+    "UserLoginParameter": {
+      "name": "Login",
+      "description": "user login details",
+      "in": "body",
+      "required": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+					"username",
+					"password"
+				]
+      }
+    },
+    "WashingMachineWiseDaySlotsParameter": {
+      "name": "WashingMachineWiseDaySlots",
+      "description": "slots of an particular washing machine on a particular day",
+      "in": "body",
+      "required": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "enum": [
+							"SUNDAY",
+							"MONDAY",
+							"TUESDAY",
+							"WEDNESDAY",
+							"THURSDAY",
+							"FRIDAY",
+							"SATERDAY"
+						]
+          },
+          "washing_machine_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+					"day",
+					"washing_machine_id"
+				]
+      }
+    },
+    "AddaWashingMachineParameter": {
+      "name": "AddaWashingMachine",
+      "description": "add a washing machine to the current database",
+      "in": "body",
+      "required": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "washing_machine_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+							"ACTIVE",
+							"INACTIVE"
+						]
+          }
+        },
+        "required": [
+					"washing_machine_id",
+					"status"
+				]
+      }
+    },
+    "ExtraWashingMachineWiseDaySlotsParameter": {
+      "name": "AddWashingMachineWiseDaySlots",
+      "description": "Add slots of an particular washing machine on a particular day",
+      "in": "body",
+      "required": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "enum": [
+							"SUNDAY",
+							"MONDAY",
+							"TUESDAY",
+							"WEDNESDAY",
+							"THURSDAY",
+							"FRIDAY",
+							"SATERDAY"
+						]
+          },
+          "washing_machine_id": {
+            "type": "string"
+          },
+          "start_time": {
+            "type": "string"
+          },
+          "end_time": {
+            "type": "string"
+          }
+        },
+        "required": [
+					"day",
+					"washing_machine_id",
+					"start_time",
+					"end_time"
+				]
+      }
+    },
+    "UpdateAWashingMachineSlotParameter": {
+      "name": "UpdateWashingMachineWiseDaySlots",
+      "description": "Update slots of an particular washing machine on a particular day",
+      "in": "body",
+      "required": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "enum": [
+							"SUNDAY",
+							"MONDAY",
+							"TUESDAY",
+							"WEDNESDAY",
+							"THURSDAY",
+							"FRIDAY",
+							"SATERDAY"
+						]
+          },
+          "washing_machine_id": {
+            "type": "string"
+          },
+          "old_start_time": {
+            "type": "string"
+          },
+          "old_end_time": {
+            "type": "string"
+          },
+          "new_start_time": {
+            "type": "string"
+          },
+          "new_end_time": {
+            "type": "string"
+          }
+        },
+        "required": [
+					"day",
+					"washing_machine_id",
+					"old_start_time",
+					"old_end_time",
+					"new_start_time",
+					"new_end_time"
+				]
+      }
+    },
+    "BookSlotParameter": {
+      "name": "BookSlot",
+      "description": "Book a required avilable slot",
+      "in": "body",
+      "required": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "datetime"
+          }
+        },
+        "required": [
+					"date",
+					"start_time",
+					"end_time"
+				]
+      }
+    }
+  },
+  "responses": {
+    "GetUserProfileResponse": {
+      "description": "Success Response",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "user_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+					"first_name",
+					"last_name",
+					"user_name"
+				]
+      }
+    },
+    "GetAccessTokenResponse": {
+      "description": "Success Response",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+					"access_token"
+				]
+      }
+    },
+    "GetDateWiseSlotResponse": {
+      "description": "Get Datewise Slots available and booked",
+      "schema": {
+        "$ref": "#/definitions/SlotsWithExtraFieldDate"
+      }
+    },
+    "WashingMachineWiseDaySlotsResponse": {
+      "description": "Get washing machinewise Slots on a particular day",
+      "schema": {
+        "$ref": "#/definitions/SlotDefinitions"
+      }
+    },
+    "GetWashingMachinesDetailsResponse": {
+      "description": "Get the details of all the washing machines",
+      "schema": {
+        "$ref": "#/definitions/WashingMachinesDetailsDefinitions"
+      }
+    },
+    "GetRequestDetailsResponse": {
+      "description": "Get the details of all the requests of an user",
+      "schema": {
+        "$ref": "#/definitions/RequestsDefintions"
+      }
+    },
+    "PreviousSlotResponse": {
+      "description": "Get previous slots of an user",
+      "schema": {
+        "$ref": "#/definitions/PreviousSlotDefinitions"
+      }
+    },
+    "BookSlotResponse": {
+      "description": "Success Response",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "washing_machine_id": {
+            "type": "string"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+					"washing_machine_id",
+					"start_time",
+					"end_time",
+					"date"
+				] {
+          "swagger": "2.0",
+          "host": "127.0.0.1:8080",
+          "basePath": "/gyaan/",
+          "info": {
+            "version": "1.0.0",
+            "title": "gyaan",
+            "description": "gyaan"
+          },
+          "schemes": [
+		"https",
+		"http"
+	],
+          "consumes": [
+		"application/json"
+	],
+          "produces": [
+		"application/json"
+	],
+          "securityDefinitions": {
+            "oauth": {
+              "tokenUrl": "http://auth.ibtspl.com/oauth2/",
+              "flow": "password",
+              "scopes": {
+                "read": "read users",
+                "write": "create users",
+                "update": "update users",
+                "delete": "delete users",
+                "superuser": "super user permission"
+              },
+              "type": "oauth2"
+            }
+          },
+          "parameters": {
+            "UserLoginParameter": {
+              "name": "Login",
+              "description": "user login details",
+              "in": "body",
+              "required": true,
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+          "username",
+          "password"
+        ]
+              }
+            }
+          },
+          "responses": {
+            "GetAc{
+            "swagger": "2.0",
+            "host": "127.0.0.1:8080",
+            "basePath": "/gyaan/",
+            "info": {
+              "version": "1.0.0",
+              "title": "gyaan",
+              "description": "gyaan"
+            },
+            "schemes": [
+		"https",
+		"http"
+	],
+            "consumes": [
+		"application/json"
+	],
+            "produces": [
+		"application/json"
+	],
+            "securityDefinitions": {
+              "oauth": {
+                "tokenUrl": "http://auth.ibtspl.com/oauth2/",
+                "flow": "password",
+                "scopes": {
+                  "read": "read users",
+                  "write": "create users",
+                  "update": "update users",
+                  "delete": "delete users",
+                  "superuser": "super user permission"
+                },
+                "type": "oauth2"
+              }
+            },
+            "parameters": {
+              "UserLoginParameter": {
+                "name": "Login",
+                "description": "user login details",
+                "in": "body",
+                "required": true,
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "username": {
+                      "type": "string"
+                    },
+                    "password": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+          "username",
+          "password"
+        ]
+                }
+              }
+            },
+            "responses": {
+              "GetAccessTokenResponse": {
+                "description": "Success Response",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+					"access_token"
+				]
+                }
+              },
+              "UserLoginFailureResponse": {
+                "description": "User Feedback Failure Response",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "type": "string"
+                    },
+                    "http_status_code": {
+                      "type": "integer"
+                    },
+                    "res_status": {
+                      "type": "string",
+                      "enum": [
+              "INVALID USERNAME",
+              "INVALID PASSWORD"
+            ]
+                    }
+                  },
+                  "required": [
+          "response",
+          "http_status_code",
+          "res_status"
+        ]
+                }
+              }
+            },
+            "paths": {
+              "/user/login/v1/": {
+                "post": {
+                  "summary": "User login",
+                  "operationId": "user_login_get_access_token",
+                  "description": "user login details",
+                  "parameters": [{
+                    "$ref": "#/parameters/UserLoginParameter"
+				}],
+                  "responses": {
+                    "200": {
+                      "$ref": "#/responses/GetAccessTokenResponse"
+                    },
+                    "404": {
+                      "$ref": "#/responses/UserLoginFailureResponse"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        cessTokenResponse ": {
+        "description": "Success Response",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "access_token": {
+              "type": "string"
+            }
+          },
+          "required": [
+					"access_token"
+				]
+        }
+      },
+      "UserLoginFailureResponse": {
+        "description": "User Feedback Failure Response",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "response": {
+              "type": "string"
+            },
+            "http_status_code": {
+              "type": "integer"
+            },
+            "res_status": {
+              "type": "string",
+              "enum": [
+              "INVALID USERNAME",
+              "INVALID PASSWORD"
+            ]
+            }
+          },
+          "required": [
+          "response",
+          "http_status_code",
+          "res_status"
+        ]
+        }
+      }
+    },
+    "paths": {
+      "/user/login/v1/": {
+        "post": {
+          "summary": "User login",
+          "operationId": "user_login_get_access_token",
+          "description": "user login details",
+          "parameters": [{
+            "$ref": "#/parameters/UserLoginParameter"
+				}],
+          "responses": {
+            "200": {
+              "$ref": "#/responses/GetAccessTokenResponse"
+            },
+            "404": {
+              "$ref": "#/responses/UserLoginFailureResponse"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+}
+}
+},
+"paths": {
+  "/get/washing_machine_slots/v1/": {
+    "get": {
+      "security": [{
+        "oauth": [
+						"read",
+						"write"
+					]
+				}],
+      "summary": "Get the details of slots of the specific washing machine on a particular day",
+      "operationId": "slots_of_washing_machine_on_a_day",
+      "description": "Get the details of slots of the specific washing machine on a particular day",
+      "parameters": [{
+        "$ref": "#/parameters/WashingMachineWiseDaySlotsParameter"
+				}],
+      "responses": {
+        "200": {
+          "$ref": "#/responses/WashingMachineWiseDaySlotsResponse"
+        }
+      }
+    }
+  },
+  "/add/washing_machine_slots/v1/": {
+    "post": {
+      "security": [{
+        "oauth": [
+  						"read",
+  						"write"
+  					]
+  				}],
+      "summary": "add the details of slots of the specific washing machine on a particular day",
+      "operationId": "add_slots_of_washing_machine_on_a_day",
+      "description": "add the details of slots of the specific washing machine on a particular day",
+      "parameters": [{
+        "$ref": "#/parameters/ExtraWashingMachineWiseDaySlotsParameter"
+  				}],
+      "responses": {
+        "200": {
+          "description": "Successfull"
+        }
+      }
+    }
+  },
+  "/add/washing_machine/v1/": {
+    "post": {
+      "security": [{
+        "oauth": [
+						"read",
+						"write"
+					]
+				}],
+      "summary": "add a washing machine",
+      "operationId": "add_a_washing_machine",
+      "description": "add a washing machine to the current database",
+      "parametesudo dpkg -i google-chrome-stable_current_amd64.debrs": [{
+        "$ref": "#/parameters/AddaWashingMachineParameter"
+				}],
+      "responses": {
+        "200": {
+          "description": "Successfull"
+        }
+      }
+    }
+  },
+  "/update/washing_machine_slots/v1/": {
+    "post": {
+      "security": [{
+        "oauth": [
+						"read",
+						"write"
+					]
+				}],
+      "summary": "update the details of slots of the specific washing machine on a particular day",
+      "operationId": "update_slots_of_washing_machine_on_a_day",
+      "description": "update the details of slots of the specific washing machine on a particular day",
+      "parameters": [{
+        "$ref": "#/parameters/UpdateAWashingMachineSlotParameter"
+				}],
+      "responses": {
+        "200": {
+          "description": "Successfull"
+        }
+      }
+    }
+  },
+  "/previous/slots/v1/": {
+    "get": {
+      "security": [{
+        "oauth": [
+            "read",
+						"write"
+					]
+				}],
+      "summary": "get list of previous slots",
+      "operationId": "list_of_previous_slots",
+      "description": "get the details of previous slots in a list",
+      "responses": {
+        "200": {
+          "$ref": "#/responses/PreviousSlotResponse"
+        }
+      }
+    }
+  },
+  "/upcomming/slots/v1/": {
+    "get": {
+      "security": [{
+        "oauth": [
+            "read",
+						"write"
+					]
+				}],
+      "summary": "get list of upcomming slots",
+      "operationId": "list_of_upcomming_slots",
+      "description": "get the details of upcomming slots in a list",
+      "responses": {
+        "200": {
+          "$ref": "#/responses/PreviousSlotResponse"
+        }
+      }
+    }
+  },
+  "/user/sign_up/v1/": {
+    "post": {
+      "summary": "User sign up",
+      "operationId": "user_sign_up",
+      "description": "user details for signing up",
+      "parameters": [{
+        "$ref": "#/parameters/UserSignUpParameter"
+				}],
+      "responses": {
+        "200": {
+          "$ref": "#/responses/GetAccessTokenResponse"
+        }
+      }
+    }
+  },
+  "/user/login/v1/": {
+    "post": {
+      "summary": "User login",
+      "operationId": "user_log_in",
+      "description": "user log in details",
+      "parameters": [{
+        "$ref": "#/parameters/UserLoginParameter"
+				}],
+      "responses": {
+        "200": {
+          "$ref": "#/responses/GetAccessTokenResponse"
+        }
+      }
+    }
+  },
+  "/get/user_profile/v1/": {
+    "get": {
+      "summary": "Get Profile Details Of An User",
+      "operationId": "get_user_profile",
+      "description": "Returns first_name, last_name and user_name profile_details of an user",
+      "security": [{
+        "oauth": [
+            "read",
+            "write"
+          ]
+				}],
+      "responses": {
+        "200": {
+          "$ref": "#/responses/GetUserProfileResponse"
+        }
+      }
+    }
+  },
+  "/get/requests/v1/": {
+    "get": {
+      "summary": "Get Requests of an User",
+      "operationId": "get_requests_of_an_user",
+      "description": "Returns requests details of an user",
+      "security": [{
+        "oauth": [
+            "read",
+            "write"
+          ]
+				}],
+      "responses": {
+        "200": {
+          {
+            "swagger": "2.0",
+            "host": "127.0.0.1:8080",
+            "basePath": "/gyaan/",
+            "info": {
+              "version": "1.0.0",
+              "title": "gyaan",
+              "description": "gyaan"
+            },
+            "schemes": [
+		"https",
+		"http"
+	],
+            "consumes": [
+		"application/json"
+	],
+            "produces": [
+		"application/json"
+	],
+            "securityDefinitions": {
+              "oauth": {
+                "tokenUrl": "http://auth.ibtspl.com/oauth2/",
+                "flow": "password",
+                "scopes": {
+                  "read": "read users",
+                  "write": "create users",
+                  "update": "update users",
+                  "delete": "delete users",
+                  "superuser": "super user permission"
+                },
+                "type": "oauth2"
+              }
+            },
+            "parameters": {
+              "UserLoginParameter": {
+                "name": "Login",
+                "description": "user login details",
+                "in": "body",
+                "required": true,
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "username": {
+                      "type": "string"
+                    },
+                    "password": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+          "username",
+          "password"
+        ]
+                }
+              }
+            },
+            "responses": {
+              "GetAccessTokenAndRoleResponse": {
+                "description": "Success Response",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": [
+              "Domine Expert",
+              "User"
+            ]
+                    }
+                  },
+                  "required": [
+					"access_token",
+          "role"
+				]
+                }
+              },
+              "UserLoginFailureResponse": {
+                "description": "User Feedback Failure Response",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "type": "string"
+                    },
+                    "http_status_code": {
+                      "type": "integer"
+                    },
+                    "res_status": {
+                      "type": "string",
+                      "enum": [
+              "INVALID USERNAME",
+              "INVALID PASSWORD"
+            ]
+                    }
+                  },
+                  "required": [
+          "response",
+          "http_status_code",
+          "res_status"
+        ]
+                }
+              }
+            },
+            "paths": {
+              "/user/login/v1/": {
+                "post": {
+                  "summary": "User login",
+                  "operationId": "user_log_in",
+                  "description": "user log in details",
+                  "parameters": [{
+                    "$ref": "#/parameters/UserLoginParameter"
+				}],
+                  "responses": {
+                    "200": {
+                      "$ref": "#/responses/GetAccessTokenAndRoleResponse"
+                    },
+                    "404": {
+                      "$ref": "#/responses/UserLoginFailureResponse"
+                    }
+                  }
+                }
+              }
+            }
+          }
+          "$ref": "#/responses/GetRequestDetailsResponse"
+        }
+      }
+    }
+  },
+  "/get/slots/v1/": {
+    "get": {
+      "summary": "Get total slots avilable on a particular day and their status to the user",
+      "operationId": "get_slots",
+      "description": "Returns slots and their status of avilability on a specific day till particular days from the present day",
+      "security": [{
+        "oauth": [
+            "read",
+						"write"
+					]
+				}],
+      "responses": {
+        "200": {
+          "$ref": "#/responses/GetDateWiseSlotResponse"
+        }
+      }
+    }
+  },
+  "/get/washing_machines_details/v1/": {
+    "get": {
+      "summary": "Get details of all the washing machines",
+      "operationId": "get_washing_machines_details",
+      "description": "get details of all the washing machines",
+      "security": [{
+        "oauth": [
+						"read",
+						"write"
+					]
+				}],
+      "responses": {
+        "200": {
+          "$ref": "#/responses/GetWashingMachinesDetailsResponse"
+        }
+      }
+    }
+  },
+  "/book/slot/v1/": {
+    "post": {
+      "summary": "book an required avilable slot",
+      "operationId": "book_a_slot",
+      "description": "book an required avilable slot and return washing machine id and slot timings",
+      "security": [{
+        "oauth": [
+						"read",
+						"write"
+					]
+				}],
+      "parameters": [{
+        "$ref": "#/parameters/BookSlotParameter"
+				}],
+      "responses": {
+        "200": {
+          "$ref": "#/responses/BookSlotResponse"
+        }
+      }
+    }
+  }
+}
+}

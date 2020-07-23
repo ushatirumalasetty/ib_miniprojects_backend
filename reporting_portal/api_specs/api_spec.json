@@ -1,0 +1,154 @@
+{
+    "swagger": "2.0",
+    "host": "127.0.0.1:8080",
+    "basePath": "/reporting_portal/",
+    "info": {
+        "version": "1.0.0",
+        "title": "Reporting Portal",
+        "description": "Reporting Portal"
+    },
+    "schemes": [
+		"https",
+		"http"
+	],
+    "consumes": [
+		"application/json"
+	],
+    "produces": [
+		"application/json"
+	],
+    "securityDefinitions": {
+        "oauth": {
+            "tokenUrl": "http://auth.ibtspl.com/oauth2/",
+            "flow": "password",
+            "scopes": {
+                "read": "read users",
+                "write": "create users",
+                "update": "update users",
+                "delete": "delete users",
+                "superuser": "super user permission"
+            },
+            "type": "oauth2"
+        }
+    },
+    "definitions": {
+        "Userdetails": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "integer"
+                },
+                "user_name": {
+                    "type": "string"
+                },
+                "user_mobile_no": {
+                    "type": "integer"
+                },
+                "user_profile_pic": {
+                    "type": "string"
+                }
+
+            },
+            "required": [
+					"user_id",
+					"user_name",
+					"user_mobile_no",
+					"user_profile_pic"
+				]
+        },
+        "UserObservations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "observation_id": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "reported_on": {
+                        "type": "string",
+                        "format": "datetime"
+                    },
+                    "assigned_to": {
+                        "$ref": "#/definitions/Userdetails"
+                    },
+                    "severity": {
+                        "type": "string",
+                        "enum": [
+                            "LOW",
+                            "MEDIUM",
+                            "HIGH"
+                        ]
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "ACKNOWLEDGED",
+                            "IN PROGRESS",
+                            "RESOLVED",
+                            "CLOSED"
+                        ]
+                    },
+                    "due_date": {
+                        "type": "string",
+                        "format": "datetime"
+                    }
+                },
+                "required": [
+					"start_time",
+					"end_time"
+				]
+            }
+        },
+
+    },
+    "parameters": {
+        "Filters": {
+            "name": "Filters and sorts",
+            "description": "details of type of filter and sorts to be applied",
+            "in": "body",
+            "required": true,
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "filter": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                        }
+                    }
+                }
+            },
+        }
+    },
+    "responses": {
+        "UserObservationsResponse": {
+            "description": "Get list of User Observations",
+            "schema": {
+                "$ref": "#/definitions/UserObservations"
+            }
+        }
+    },
+    "paths": {
+        "/user/get/observations/v1/": {
+            "get": {
+                "security": [{
+                    "oauth": [
+						"read",
+						"write"
+					]
+				}],
+                "summary": "getting all the observations of an user",
+                "operationId": "get_user_observations",
+                "description": "get all the observations of an user",
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/UserObservationsResponse"
+                    }
+                }
+            }
+        }
+    }
+}
